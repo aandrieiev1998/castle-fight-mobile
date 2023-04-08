@@ -1,5 +1,6 @@
 ﻿using UI.View;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEditor;
 using UnityEngine;
 
@@ -35,7 +36,11 @@ namespace UI.Controller
 
             _mainMenuView.gameObject.SetActive(false);
             _lobbyMenuView.gameObject.SetActive(true);
+
+            NetworkManager.Singleton.GetComponent<UnityTransport>()
+                .SetConnectionData("178.43.241.246", 25565, "0.0.0.0");
             NetworkManager.Singleton.StartHost();
+
             // NetworkManager.Singleton.SceneManager.LoadScene("OnlineScene", LoadSceneMode.Single);
         }
 
