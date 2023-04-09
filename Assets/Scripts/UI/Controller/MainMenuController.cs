@@ -36,7 +36,7 @@ namespace UI.Controller
 
             _mainMenuView.gameObject.SetActive(false);
             _lobbyMenuView.gameObject.SetActive(true);
-
+            
             NetworkManager.Singleton.GetComponent<UnityTransport>()
                 .SetConnectionData("178.43.241.246", 25565, "0.0.0.0");
             NetworkManager.Singleton.StartHost();
@@ -60,8 +60,9 @@ namespace UI.Controller
         {
 #if UNITY_EDITOR
             EditorApplication.isPlaying = false;
-#endif
+#else
             Application.Quit();
+#endif
         }
 
         private void ShowNotification(string title, string description)

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Network;
 using UI.View;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace UI.Controller
