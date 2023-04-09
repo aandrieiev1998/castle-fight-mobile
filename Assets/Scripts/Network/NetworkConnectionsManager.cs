@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Network
 {
     public class NetworkConnectionsManager : MonoBehaviour
-    {
+{
         private NetworkManager networkManager;
         public static NetworkConnectionsManager Singleton { get; private set; }
 
