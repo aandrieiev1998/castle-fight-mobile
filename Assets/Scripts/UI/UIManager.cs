@@ -7,15 +7,11 @@ namespace UI
 {
     public class UIManager : MonoBehaviour
     {
-        // [SerializeField] private MainMenuController _mainMenuController;
-        // [SerializeField] private LobbyMenuController _lobbyMenuController;
-        // [SerializeField] private HostMenuController _hostMenuController;
-        // [SerializeField] private JoinMenuController _joinMenuController;
-
-        [SerializeField] private MainMenuView _mainMenuView;
-        [SerializeField] private LobbyMenuView _lobbyMenuView;
-        [SerializeField] private HostMenuView _hostMenuView;
-        [SerializeField] private JoinMenuView _joinMenuView;
+        [SerializeField] private MainMenuController _mainMenuController;
+        [SerializeField] private LobbyMenuController _lobbyMenuController;
+        [SerializeField] private HostMenuController _hostMenuController;
+        [SerializeField] private JoinMenuController _joinMenuController;
+        [SerializeField] private LoadingMenuController _loadingMenuController;
 
         public static UIManager Singleton { get; private set; }
 
@@ -34,11 +30,12 @@ namespace UI
 
         public void NavigateToMenu(Type menuType)
         {
-            Debug.Log($"Navigating to menu {menuType}");
-            _mainMenuView.gameObject.SetActive(menuType == typeof(MainMenuView));
-            _lobbyMenuView.gameObject.SetActive(menuType == typeof(LobbyMenuView));
-            _hostMenuView.gameObject.SetActive(menuType == typeof(HostMenuView));
-            _joinMenuView.gameObject.SetActive(menuType == typeof(JoinMenuView));
+            ConsoleController.Singleton.WriteLog($"Navigating to menu {menuType.Name}");
+            _mainMenuController.MainMenuView.gameObject.SetActive(menuType == typeof(MainMenuView));
+            _lobbyMenuController.LobbyMenuView.gameObject.SetActive(menuType == typeof(LobbyMenuView));
+            _hostMenuController.HostMenuView.gameObject.SetActive(menuType == typeof(HostMenuView));
+            _joinMenuController.JoinMenuView.gameObject.SetActive(menuType == typeof(JoinMenuView));
+            _loadingMenuController.LoadingMenuView.gameObject.SetActive(menuType == typeof(LoadingMenuView));
         }
     }
 }

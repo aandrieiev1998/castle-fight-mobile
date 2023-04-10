@@ -1,5 +1,6 @@
 ﻿using UI.View;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 
 namespace UI.Controller
@@ -23,7 +24,16 @@ namespace UI.Controller
 
         private void JoinButtonListener()
         {
+            var connection = _joinMenuView.ConnectionInputField.text;
+            var connectionSplit = connection.Split(':');
+            var ipv4 = connectionSplit[0];
+            var port = ushort.Parse(connectionSplit[1]);
+
+            NetworkManager.Singleton.GetComponent<UnityTransport>()
+                .SetConnectionData(ipv4, port, null);
             NetworkManager.Singleton.StartClient();
+
+            UIManager.Singleton.NavigateToMenu(typeof(LoadingMenuView));
         }
     }
 }

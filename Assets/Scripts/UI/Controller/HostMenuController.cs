@@ -2,7 +2,6 @@
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace UI.Controller
 {
@@ -25,11 +24,17 @@ namespace UI.Controller
 
         private void HostButtonListener()
         {
-            NetworkManager.Singleton.GetComponent<UnityTransport>()
-                .SetConnectionData("178.43.241.246", 25565, "0.0.0.0");
-            NetworkManager.Singleton.StartHost();
+            var connection = _hostMenuView.ConnectionInputField.text;
+            var connectionSplit = connection.Split(':');
+            var ipv4 = connectionSplit[0];
+            var port = ushort.Parse(connectionSplit[1]);
 
-            NetworkManager.Singleton.SceneManager.LoadScene("OnlineScene", LoadSceneMode.Single);
+            UIManager.Singleton.NavigateToMenu(typeof(LoadingMenuView));
+            
+            ConsoleController.Singleton.WriteLog("Starting server");
+            NetworkManager.Singleton.GetComponent<UnityTransport>()
+                .SetConnectionData(null, port, ipv4);
+            NetworkManager.Singleton.StartHost();
         }
     }
 }

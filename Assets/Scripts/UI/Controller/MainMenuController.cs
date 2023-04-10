@@ -10,6 +10,8 @@ namespace UI.Controller
         [SerializeField] private MainMenuView _mainMenuView;
         [SerializeField] private LobbyMenuView _lobbyMenuView;
 
+        public MainMenuView MainMenuView => _mainMenuView;
+
         private void OnEnable()
         {
             _mainMenuView.HostButton.onClick.AddListener(HostButtonListener);
