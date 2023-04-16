@@ -1,4 +1,5 @@
-﻿using UI.View;
+﻿using System;
+using UI.View;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
@@ -17,9 +18,15 @@ namespace UI.Controller
             _joinMenuView.BackButton.onClick.AddListener(BackButtonListener);
         }
 
+        private void OnDestroy()
+        {
+            _joinMenuView.JoinButton.onClick.RemoveListener(JoinButtonListener);
+            _joinMenuView.BackButton.onClick.RemoveListener(BackButtonListener);
+        }
+
         private void BackButtonListener()
         {
-            UIManager.Singleton.NavigateToMenu(typeof(MainMenuView));
+            UIManager.Singleton.MainMenuManager.NavigateToMenu(typeof(MainMenuView));
         }
 
         private void JoinButtonListener()
@@ -33,7 +40,7 @@ namespace UI.Controller
                 .SetConnectionData(ipv4, port, null);
             NetworkManager.Singleton.StartClient();
 
-            UIManager.Singleton.NavigateToMenu(typeof(LoadingMenuView));
+            UIManager.Singleton.MainMenuManager.NavigateToMenu(typeof(LoadingMenuView));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace UI.Controller
 
         private void Update()
         {
-            if (!Input.GetKeyDown(KeyCode.Tilde)) return;
+            if (!Input.GetKeyDown(KeyCode.BackQuote)) return;
             
             var consoleIsActive = _consoleView.gameObject.activeSelf;
             _consoleView.gameObject.SetActive(!consoleIsActive);

@@ -1,17 +1,17 @@
 using System;
-using UI.Controller;
+using UI.Manager;
 using UI.View;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace UI
 {
     public class UIManager : MonoBehaviour
     {
-        [SerializeField] private MainMenuController _mainMenuController;
-        [SerializeField] private LobbyMenuController _lobbyMenuController;
-        [SerializeField] private HostMenuController _hostMenuController;
-        [SerializeField] private JoinMenuController _joinMenuController;
-        [SerializeField] private LoadingMenuController _loadingMenuController;
+        private NetworkManager networkManager;
+        public MainMenuManager MainMenuManager { get; private set; }
+        public GUIManager GUIManager { get; private set; }
 
         public static UIManager Singleton { get; private set; }
 
@@ -21,21 +21,31 @@ namespace UI
                 throw new Exception($"Detected more than 1 instance of {nameof(UIManager)}");
 
             Singleton = this;
+            DontDestroyOnLoad(Singleton);
         }
 
         private void Start()
         {
-            NavigateToMenu(typeof(MainMenuView));
+            networkManager = NetworkManager.Singleton;
+            networkManager.OnServerStarted += OnServerStarted;
+
+            MainMenuManager = FindObjectOfType<MainMenuManager>();
+            MainMenuManager.NavigateToMenu(typeof(MainMenuView));
         }
 
-        public void NavigateToMenu(Type menuType)
+        private void OnDestroy()
         {
-            ConsoleController.Singleton.WriteLog($"Navigating to menu {menuType.Name}");
-            _mainMenuController.MainMenuView.gameObject.SetActive(menuType == typeof(MainMenuView));
-            _lobbyMenuController.LobbyMenuView.gameObject.SetActive(menuType == typeof(LobbyMenuView));
-            _hostMenuController.HostMenuView.gameObject.SetActive(menuType == typeof(HostMenuView));
-            _joinMenuController.JoinMenuView.gameObject.SetActive(menuType == typeof(JoinMenuView));
-            _loadingMenuController.LoadingMenuView.gameObject.SetActive(menuType == typeof(LoadingMenuView));
+            networkManager.SceneManager.OnLoadComplete -= OnNetworkSceneLoaded;
+        }
+
+        private void OnServerStarted()
+        {
+            networkManager.SceneManager.OnLoadComplete += OnNetworkSceneLoaded;
+        }
+
+        private void OnNetworkSceneLoaded(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
+        {
+            Debug.Log("Scene loaded");
         }
     }
 }

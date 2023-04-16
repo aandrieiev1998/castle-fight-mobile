@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UI.View;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace UI.Controller
 {
@@ -23,17 +24,33 @@ namespace UI.Controller
         {
             networkManager = NetworkManager.Singleton;
             networkManager.OnServerStarted += OnServerStarted;
-            networkManager.OnClientConnectedCallback += OnClientConnection;
-            networkManager.OnClientDisconnectCallback += OnClientDisconnect;
-            // NetworkManager.Singleton.SceneManager.LoadScene("OnlineScene", LoadSceneMode.Additive);
+            networkManager.OnClientConnectedCallback += OnClientConnected;
+            networkManager.OnClientDisconnectCallback += OnClientDisconnected;
+
+            _lobbyMenuView.StartButton.onClick.AddListener(StartButtonListener);
         }
-        
+
+        private void OnDestroy()
+        {
+            networkManager.OnServerStarted -= OnServerStarted;
+            networkManager.OnClientConnectedCallback -= OnClientConnected;
+            networkManager.OnClientDisconnectCallback -= OnClientDisconnected;
+            _lobbyMenuView.StartButton.onClick.RemoveListener(StartButtonListener);
+        }
+
+        private void StartButtonListener()
+        {
+            UIManager.Singleton.MainMenuManager.NavigateToMenu(typeof(LoadingMenuView));
+            
+            networkManager.SceneManager.LoadScene("OnlineScene", LoadSceneMode.Single);
+            
+        }
 
         private void OnServerStarted()
         {
             ConsoleController.Singleton.WriteLog("Server started");
             // StartCoroutine(LongLoading());
-            UIManager.Singleton.NavigateToMenu(typeof(LobbyMenuView));
+            UIManager.Singleton.MainMenuManager.NavigateToMenu(typeof(LobbyMenuView));
             AddPlayerToList(networkManager.LocalClientId);
             _lobbyMenuView.LabelText.SetText("Lobby, you are server");
         }
@@ -41,49 +58,44 @@ namespace UI.Controller
         private IEnumerator LongLoading()
         {
             yield return new WaitForSeconds(2.0f);
-            
-            UIManager.Singleton.NavigateToMenu(typeof(LobbyMenuView));
+
+            UIManager.Singleton.MainMenuManager.NavigateToMenu(typeof(LobbyMenuView));
         }
 
-        private void OnClientConnection(ulong clientId)
+        private void OnClientConnected(ulong clientId)
         {
             ConsoleController.Singleton.WriteLog($"Client connected {clientId}");
 
             if (networkManager.IsHost && clientId != networkManager.LocalClientId)
             {
-                var clientRpcParams = new ClientRpcParams
-                {
-                    Send = new ClientRpcSendParams
-                    {
-                        TargetClientIds = new []{clientId}
-                    }
-                };
                 var connectedClientsIds = networkManager.ConnectedClientsIds;
-                ConsoleController.Singleton.WriteLog($"Sending connectedClientsIds = {string.Join(",", connectedClientsIds)} to {clientId}");
-                SendConnectedPlayersToClient(connectedClientsIds, clientRpcParams);
+                ConsoleController.Singleton.WriteLog(
+                    $"Sending connectedClientsIds = {string.Join(",", connectedClientsIds)} to all clients"); // todo sent only to newly connected player
+                SendConnectedPlayersToClient(connectedClientsIds);
                 AddPlayerToList(clientId);
             }
             else if (networkManager.IsClient && clientId == networkManager.LocalClientId)
             {
-                UIManager.Singleton.NavigateToMenu(typeof(LobbyMenuView));
+                UIManager.Singleton.MainMenuManager.NavigateToMenu(typeof(LobbyMenuView));
                 _lobbyMenuView.LabelText.SetText("Lobby, you are client");
+                ConsoleController.Singleton.WriteLog($"IsConnectedClient = {networkManager.IsConnectedClient}");
             }
         }
 
-        private void OnClientDisconnect(ulong clientId)
+        private void OnClientDisconnected(ulong clientId)
         {
             Destroy(lobbyList[clientId].gameObject);
             lobbyList.Remove(clientId);
         }
-        
+
 
         [ClientRpc]
-        private void SendConnectedPlayersToClient(IReadOnlyList<ulong> connectedClientsIds,
-            ClientRpcParams clientRpcParams = default)
+        private void SendConnectedPlayersToClient(IReadOnlyList<ulong> connectedClientsIds)
         {
-            ConsoleController.Singleton.WriteLog($"Received connectedClientsIds: {string.Join(",", connectedClientsIds)}, host = {networkManager.IsHost}, client = {networkManager.IsClient}" );
+            ConsoleController.Singleton.WriteLog(
+                $"Received connectedClientsIds: {string.Join(",", connectedClientsIds)}, host = {networkManager.IsHost}, client = {networkManager.IsClient}");
             if (networkManager.IsHost) return;
-            
+
             foreach (var clientId in connectedClientsIds) AddPlayerToList(clientId);
         }
 

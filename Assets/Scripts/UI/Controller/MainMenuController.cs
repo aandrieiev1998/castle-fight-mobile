@@ -35,7 +35,7 @@ namespace UI.Controller
                 return;
             }
 
-            UIManager.Singleton.NavigateToMenu(typeof(HostMenuView));
+            UIManager.Singleton.MainMenuManager.NavigateToMenu(typeof(HostMenuView));
         }
 
         private void JoinButtonListener()
@@ -47,7 +47,7 @@ namespace UI.Controller
                 return;
             }
             
-            UIManager.Singleton.NavigateToMenu(typeof(JoinMenuView));
+            UIManager.Singleton.MainMenuManager.NavigateToMenu(typeof(JoinMenuView));
         }
 
         private void ExitButtonListener()
