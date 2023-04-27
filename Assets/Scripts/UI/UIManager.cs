@@ -33,10 +33,6 @@ namespace UI
             MainMenuManager.NavigateToMenu(typeof(MainMenuView));
         }
 
-        private void OnDestroy()
-        {
-            networkManager.SceneManager.OnLoadComplete -= OnNetworkSceneLoaded;
-        }
 
         private void OnServerStarted()
         {
